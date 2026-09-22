@@ -1,2 +1,3 @@
 # Council
-Life-support / materials station (Tanaka seat) leads science table. Integration station owns fail-closed. IP station owns citations.
+
+Materials station and integration station co-lead. Roles, not hired celebrities.

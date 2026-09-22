@@ -1,3 +1,3 @@
-# Seats
-BOM → lookup → match → unknown gate → slip.
-Lookup miss must become unknown, not fail-open.
+# Agents
+
+Seats: BOM ingest, envelope, matcher, slip, counsel. Unpublished NASA crew data refused.

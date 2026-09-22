@@ -1,3 +1,3 @@
-# Wiring
-BOM ingest → envelope table (owned) → matcher → pass/fail/unknown → slip PDF.
-Unknown if no cited test. Never auto-green.
+# Architecture
+
+Owned matcher in `src/fitslip/match.py`. Slip compile in `src/fitslip/slip.py`. Fail beats unknown. MAPTIS not fetched.
