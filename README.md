@@ -1,9 +1,10 @@
 # FITSLIP
 
-FITSLIP matches a bill of materials to a published envelope. A blank cell is not a pass.
+For a payload engineer checking a parts list against a published size, mass, and power limit.
 
 **Owner:** Digital Currensy Inc.
-**License:** Apache-2.0. Our code only. Cited material data stay with their authors.
+**License:** Apache-2.0. Our code only. Cited data and papers stay with their authors.
+**Status:** Private until the owner publishes it.
 
 ## What it decides
 
@@ -11,11 +12,11 @@ Pass, fail, or unknown. Fail outranks unknown. Unknown is not a pass.
 
 ## The rule
 
-Every line needs a named material and a limit it can be checked against. A missing wattage, a missing lookup, an empty bill, or a line over the cap fails closed. A line that passes on its own does not save a bill that fails elsewhere.
+Every line needs a named material and a limit it can be checked against. A missing wattage, a missed lookup, an empty bill, or a line over the cap fails closed. One passing line does not save a failing bill.
 
 ## Worked cases
 
-The cases in this repository include a silence pack, a synthetic university camera, a published window, a missed lookup, missing watts, a material on the wrong paper, a line that passes while the payload is over the cap, and an empty bill. They prove the rule. They are not a flight bill a customer sent.
+The cases here include a silent pack, a synthetic camera, a published window, a missed lookup, missing watts, the wrong paper, a line that passes while the payload is over the cap, and an empty bill. They are not a flight bill.
 
 ## What it will not do
 
@@ -26,7 +27,9 @@ The cases in this repository include a silence pack, a synthetic university came
 ## Run
 
 ```
+git clone <this repo>
+cd fitslip
 PYTHONPATH=src python -m unittest tests.test_kernel
 ```
 
-Notes under `docs/` are the build record. This page is the description.
+Python 3.12. No third-party packages. The test is the demo.
