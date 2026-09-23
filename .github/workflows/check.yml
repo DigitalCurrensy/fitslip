@@ -18,3 +18,5 @@ jobs:
         run: python -m fitslip examples/pass.csv
       - name: Example fail
         run: python -m fitslip examples/bill.csv || test $? -eq 1
+      - name: Envelope
+        run: python -m fitslip examples/values.csv examples/envelope.csv || test $? -eq 1
