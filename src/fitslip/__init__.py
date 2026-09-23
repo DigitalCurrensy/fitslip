@@ -14,7 +14,7 @@
 
 """FITSLIP — the fit slip, the paper on the part. Unknown is not a pass."""
 
-from .match import Verdict, match
+from .match import Verdict, bill, match
 from .slip import compile_slip
 
-__all__ = ["Verdict", "compile_slip", "match"]
+__all__ = ["Verdict", "bill", "compile_slip", "match"]

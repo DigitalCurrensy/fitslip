@@ -26,3 +26,15 @@ def match(value: float | None, lo: float | None, hi: float | None) -> Verdict:
     if lo <= value <= hi:
         return Verdict.PASS
     return Verdict.FAIL
+
+
+def bill(rows: list[tuple[float | None, float | None, float | None]]) -> Verdict:
+    """Fold a parts bill. An empty bill fails. Fail outranks unknown."""
+    if not rows:
+        return Verdict.FAIL
+    verdicts = [match(value, lo, hi) for value, lo, hi in rows]
+    if any(item == Verdict.FAIL for item in verdicts):
+        return Verdict.FAIL
+    if any(item == Verdict.UNKNOWN for item in verdicts):
+        return Verdict.UNKNOWN
+    return Verdict.PASS
