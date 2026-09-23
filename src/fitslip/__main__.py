@@ -16,6 +16,7 @@
 
 An empty field is unknown. A bill that also contains a fail is fail.
 Exit 0 for pass, exit 1 for fail, exit 2 for unknown.
+Two filenames score a name,value file against a name,lo,hi envelope and print the bill verdict.
 """
 
 from __future__ import annotations
@@ -24,7 +25,7 @@ import csv
 import sys
 from pathlib import Path
 
-from fitslip.match import Verdict, bill, match
+from fitslip.match import Verdict, against, bill, match
 
 
 def cell(text: str | None) -> float | None:
@@ -53,21 +54,55 @@ def load(path: Path) -> tuple[list[str], list[tuple[float | None, float | None, 
     return names, rows
 
 
-def main(argv: list[str] | None = None) -> int:
-    args = list(sys.argv[1:] if argv is None else argv)
-    if len(args) != 1:
-        print("usage: python -m fitslip CSV", file=sys.stderr)
-        return 2
-    names, rows = load(Path(args[0]))
-    overall = bill(rows)
-    print(f"bill {overall.value}")
-    for name, row in zip(names, rows):
-        print(f"{name} {match(*row).value}")
+def load_values(path: Path) -> dict[str, float | None]:
+    """name,value. Limits are not in this file."""
+    values: dict[str, float | None] = {}
+    with path.open(newline="", encoding="utf-8") as handle:
+        reader = csv.DictReader(handle)
+        if reader.fieldnames:
+            reader.fieldnames = [name.strip() for name in reader.fieldnames]
+        for record in reader:
+            name = (record.get("name") or "").strip()
+            values[name] = cell(record.get("value"))
+    return values
+
+
+def load_limits(path: Path) -> dict[str, tuple[float | None, float | None]]:
+    """name,lo,hi. An envelope the caller wrote. Not a parts catalog."""
+    limits: dict[str, tuple[float | None, float | None]] = {}
+    with path.open(newline="", encoding="utf-8") as handle:
+        reader = csv.DictReader(handle)
+        if reader.fieldnames:
+            reader.fieldnames = [name.strip() for name in reader.fieldnames]
+        for record in reader:
+            name = (record.get("name") or "").strip()
+            limits[name] = (cell(record.get("lo")), cell(record.get("hi")))
+    return limits
+
+
+def _exit_for(overall: Verdict) -> int:
     if overall == Verdict.PASS:
         return 0
     if overall == Verdict.FAIL:
         return 1
     return 2
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = list(sys.argv[1:] if argv is None else argv)
+    if len(args) == 1:
+        names, rows = load(Path(args[0]))
+        overall = bill(rows)
+        print(f"bill {overall.value}")
+        for name, row in zip(names, rows):
+            print(f"{name} {match(*row).value}")
+    elif len(args) == 2:
+        overall = against(load_values(Path(args[0])), load_limits(Path(args[1])))
+        print(f"bill {overall.value}")
+    else:
+        print("usage: python -m fitslip CSV [ENVELOPE]", file=sys.stderr)
+        return 2
+    return _exit_for(overall)
 
 
 if __name__ == "__main__":

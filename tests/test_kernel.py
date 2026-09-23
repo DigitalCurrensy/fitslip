@@ -25,7 +25,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from fitslip.__main__ import main  # noqa: E402
-from fitslip.match import Verdict, bill, match  # noqa: E402
+from fitslip.match import Verdict, against, bill, match  # noqa: E402
 from fitslip.slip import compile_slip  # noqa: E402
 
 
@@ -62,6 +62,40 @@ class BillTests(unittest.TestCase):
         self.assertEqual(bill([(0.5, 0.0, 1.0), (0.2, 0.0, 1.0)]), Verdict.PASS)
 
 
+class AgainstTests(unittest.TestCase):
+    def test_empty_is_fail(self) -> None:
+        self.assertEqual(against({}, {}), Verdict.FAIL)
+
+    def test_inside_is_pass(self) -> None:
+        self.assertEqual(
+            against({"washer": 5.0}, {"washer": (0.0, 10.0)}),
+            Verdict.PASS,
+        )
+
+    def test_outside_is_fail_and_beats_unknown(self) -> None:
+        self.assertEqual(
+            against(
+                {"washer": 5.0, "bolt": 15.0, "clip": 1.0},
+                {"washer": (0.0, 10.0), "bolt": (0.0, 10.0)},
+            ),
+            Verdict.FAIL,
+        )
+
+    def test_missing_value_or_limit_is_unknown(self) -> None:
+        self.assertEqual(against({"clip": 1.0}, {}), Verdict.UNKNOWN)
+        self.assertEqual(against({}, {"clip": (0.0, 10.0)}), Verdict.UNKNOWN)
+        self.assertEqual(against({"washer": None}, {"washer": (0.0, 10.0)}), Verdict.UNKNOWN)
+
+    def test_reversed_limit_stays_unknown(self) -> None:
+        self.assertEqual(against({"washer": 1.0}, {"washer": (5.0, 1.0)}), Verdict.UNKNOWN)
+
+    def test_name_only_in_the_envelope_is_unknown(self) -> None:
+        self.assertEqual(
+            against({"washer": 5.0}, {"washer": (0.0, 10.0), "clip": (0.0, 1.0)}),
+            Verdict.UNKNOWN,
+        )
+
+
 class SlipTests(unittest.TestCase):
     def test_fail_issues_refused_does_not(self) -> None:
         fail = compile_slip("declared", -40.0, 80.0)
@@ -95,6 +129,14 @@ class CliTests(unittest.TestCase):
         self.assertEqual(code, 1)
         text = out.getvalue().splitlines()
         self.assertEqual(text, ["bill fail", "bracket unknown", "washer pass", "bolt fail"])
+
+    def test_two_files_exit_1(self) -> None:
+        repo = Path(__file__).resolve().parents[1]
+        out = io.StringIO()
+        with redirect_stdout(out):
+            code = main([str(repo / "examples" / "values.csv"), str(repo / "examples" / "envelope.csv")])
+        self.assertEqual(code, 1)
+        self.assertEqual(out.getvalue().splitlines(), ["bill fail"])
 
 
 if __name__ == "__main__":

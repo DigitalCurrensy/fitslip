@@ -40,3 +40,32 @@ def bill(rows: list[tuple[float | None, float | None, float | None]]) -> Verdict
     if any(item == Verdict.UNKNOWN for item in verdicts):
         return Verdict.UNKNOWN
     return Verdict.PASS
+
+
+def against(
+    values: dict[str, float | None],
+    limits: dict[str, tuple[float | None, float | None]],
+) -> Verdict:
+    """Score every name in either dict with the bill rank.
+
+    A name with no value, or no limit, is unknown. A reversed limit stays
+    unknown because match() sees it. An empty pair of dicts fails.
+    """
+    names: list[str] = []
+    seen: set[str] = set()
+    for name in values:
+        if name not in seen:
+            seen.add(name)
+            names.append(name)
+    for name in limits:
+        if name not in seen:
+            seen.add(name)
+            names.append(name)
+    rows: list[tuple[float | None, float | None, float | None]] = []
+    for name in names:
+        if name not in values or name not in limits:
+            rows.append((None, None, None))
+            continue
+        lo, hi = limits[name]
+        rows.append((values[name], lo, hi))
+    return bill(rows)
