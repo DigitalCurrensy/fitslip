@@ -6,7 +6,7 @@ from .match import Verdict, match
 
 TITLE = "FIT SLIP"
 AFT = (-20.0, 60.0)
-OFFER = "per-payload slip $2k–$6k. Not a certificate price."
+OFFER = "Unsigned. Not a certificate."
 PAYLOAD = "SYN-PAY-CAM-3U"
 
 

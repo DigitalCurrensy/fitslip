@@ -4,8 +4,6 @@ For a payload engineer checking a parts list against a published size, mass, and
 
 **Owner:** Digital Currensy Inc.
 **License:** Apache-2.0. Our code only. Cited data and papers stay with their authors.
-**Status:** Private until the owner publishes it.
-
 ## What it decides
 
 Pass, fail, or unknown. Fail outranks unknown. Unknown is not a pass.
