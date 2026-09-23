@@ -23,6 +23,8 @@ class Verdict(str, Enum):
 def match(value: float | None, lo: float | None, hi: float | None) -> Verdict:
     if value is None or lo is None or hi is None:
         return Verdict.UNKNOWN
+    if lo > hi:
+        return Verdict.UNKNOWN
     if lo <= value <= hi:
         return Verdict.PASS
     return Verdict.FAIL

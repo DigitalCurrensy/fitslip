@@ -40,6 +40,10 @@ class MatchTests(unittest.TestCase):
         self.assertEqual(match(1.0, 0.0, None), Verdict.UNKNOWN)
         self.assertEqual(match(11.0, 0.0, 10.0), Verdict.FAIL)
 
+    def test_reversed_limit_is_unknown(self) -> None:
+        self.assertEqual(match(1, 5, 1), Verdict.UNKNOWN)
+        self.assertEqual(bill([(1, 5, 1)]), Verdict.UNKNOWN)
+
 
 class BillTests(unittest.TestCase):
     def test_empty_bill_fails(self) -> None:
