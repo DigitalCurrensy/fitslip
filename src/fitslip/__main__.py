@@ -22,6 +22,7 @@ Two filenames score a name,value file against a name,lo,hi envelope and print th
 from __future__ import annotations
 
 import csv
+import math
 import sys
 from pathlib import Path
 
@@ -80,6 +81,20 @@ def load_limits(path: Path) -> dict[str, tuple[float | None, float | None]]:
     return limits
 
 
+
+def _show(value: float | None) -> str:
+    if value is None:
+        return "missing"
+    if not math.isfinite(value):
+        return "bad"
+    return f"{value:.10g}"
+
+
+def _row_line(name: str, row: tuple[float | None, float | None, float | None]) -> str:
+    word = match(*row).value
+    return f"{name} {word} value={_show(row[0])} low={_show(row[1])} high={_show(row[2])}"
+
+
 def _exit_for(overall: Verdict) -> int:
     if overall == Verdict.PASS:
         return 0
@@ -95,10 +110,17 @@ def main(argv: list[str] | None = None) -> int:
         overall = bill(rows)
         print(f"bill {overall.value}")
         for name, row in zip(names, rows):
-            print(f"{name} {match(*row).value}")
+            print(_row_line(name, row))
     elif len(args) == 2:
-        overall = against(load_values(Path(args[0])), load_limits(Path(args[1])))
+        values = load_values(Path(args[0]))
+        limits = load_limits(Path(args[1]))
+        overall = against(values, limits)
         print(f"bill {overall.value}")
+        names = list(dict.fromkeys([*values, *limits]))
+        for name in names:
+            value = values.get(name)
+            low, high = limits.get(name, (None, None))
+            print(_row_line(name, (value, low, high)))
     else:
         print("usage: python -m fitslip CSV [ENVELOPE]", file=sys.stderr)
         return 2

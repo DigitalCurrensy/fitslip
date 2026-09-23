@@ -14,7 +14,7 @@ Pass, fail, or unknown. A missing number is unknown. Fail beats unknown. Unknown
 
 This does not look up materials. The caller supplies the number and the limits. Each row is a value and a closed interval. A value inside the limits passes. A value outside fails. A missing number, a non-finite number, or a missing bound is unknown. If the low limit is above the high limit, the row is unknown.
 
-A bill fails when it has no rows, or when any row fails. Otherwise a bill is unknown when any row is unknown. Otherwise the bill passes. One passing row does not save a failing row.
+A bill fails when it has no rows, or when any row fails. Otherwise a bill is unknown when any row is unknown. Otherwise the bill passes. One passing row does not save a failing row. Each row line prints the value, the low limit, and the high limit next to pass, fail, or unknown.
 
 Pass two filenames and the first CSV is name and value while the second is name, low, and high. The envelope is a second file the caller wrote. The library does not contain a parts catalog.
 
