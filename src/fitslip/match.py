@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import math
 from enum import Enum
 
 class Verdict(str, Enum):
@@ -22,6 +23,8 @@ class Verdict(str, Enum):
 
 def match(value: float | None, lo: float | None, hi: float | None) -> Verdict:
     if value is None or lo is None or hi is None:
+        return Verdict.UNKNOWN
+    if not math.isfinite(value) or not math.isfinite(lo) or not math.isfinite(hi):
         return Verdict.UNKNOWN
     if lo > hi:
         return Verdict.UNKNOWN

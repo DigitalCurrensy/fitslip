@@ -139,5 +139,11 @@ class CliTests(unittest.TestCase):
         self.assertEqual(out.getvalue().splitlines(), ["bill fail"])
 
 
+
+class FiniteMatchTests(unittest.TestCase):
+    def test_non_finite_is_unknown(self) -> None:
+        self.assertEqual(match(float("nan"), 0.0, 1.0), Verdict.UNKNOWN)
+
+
 if __name__ == "__main__":
     unittest.main()

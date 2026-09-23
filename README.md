@@ -12,7 +12,7 @@ Pass, fail, or unknown. A missing number is unknown. Fail beats unknown. Unknown
 
 ## The rule
 
-This does not look up materials. The caller supplies the number and the limits. Each row is a value and a closed interval. A value inside the limits passes. A value outside fails. A missing number or a missing bound is unknown. If the low limit is above the high limit, the row is unknown.
+This does not look up materials. The caller supplies the number and the limits. Each row is a value and a closed interval. A value inside the limits passes. A value outside fails. A missing number, a non-finite number, or a missing bound is unknown. If the low limit is above the high limit, the row is unknown.
 
 A bill fails when it has no rows, or when any row fails. Otherwise a bill is unknown when any row is unknown. Otherwise the bill passes. One passing row does not save a failing row.
 
