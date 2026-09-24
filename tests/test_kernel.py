@@ -165,8 +165,8 @@ class CliTests(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertEqual(out.getvalue().splitlines(), [
             "bill pass",
-            "washer pass value=5 low=0 high=10 clearance=5 n=3 median=5",
-            "spacer pass value=2 low=0 high=4 clearance=2 n=2 median=2",
+            "washer pass value=5 low=0 high=10 clearance=5 n=3 median=5 sd=2.645751311",
+            "spacer pass value=2 low=0 high=4 clearance=2 n=2 median=2 sd=1.414213562",
         ])
 
 

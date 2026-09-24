@@ -63,6 +63,19 @@ def median(readings: list[float | None]) -> float | None:
     return (clean[mid - 1] + clean[mid]) / 2.0
 
 
+def sample_sd(readings: list[float | None]) -> float | None:
+    """Sample standard deviation. The divisor is n − 1. Under two readings is missing.
+
+    This is the spread of the readings. It is not a caliper.
+    """
+    if median(readings) is None or len(readings) < 2:
+        return None
+    clean = [float(value) for value in readings if value is not None]
+    mean = sum(clean) / len(clean)
+    var = sum((value - mean) ** 2 for value in clean) / (len(clean) - 1)
+    return var ** 0.5
+
+
 def bill(rows: list[tuple[float | None, float | None, float | None]]) -> Verdict:
     """Fold a parts bill. An empty bill fails. Fail outranks unknown."""
     if not rows:

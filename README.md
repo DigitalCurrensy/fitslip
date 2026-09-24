@@ -1,6 +1,6 @@
 # FITSLIP
 
-Match a parts list to numeric limits. Fail outranks unknown. One `value` is a number you already have. A `reading` file is different: the value is the median of the readings for that name. An odd count takes the middle reading after sorting. An even count averages the two middle readings. A blank or a non-finite reading makes that part unknown. `clearance` is then the smaller of value minus low and high minus value. A negative clearance is outside the limits. This sorts and subtracts. It does not touch the part. A pass is not a measurement.
+Match a parts list to numeric limits. Fail outranks unknown. One `value` is a number you already have. A `reading` file is different: the value is the median of the readings for that name. An odd count takes the middle reading after sorting. An even count averages the two middle readings. A blank or a non-finite reading makes that part unknown. `clearance` is then the smaller of value minus low and high minus value. A negative clearance is outside the limits. `sd` is the sample standard deviation of those readings. The divisor is n − 1. Washer readings 4, 5, and 9 have `sd=2.645751311`. Two readings have a standard deviation. One does not. This sorts and subtracts. It does not touch the part. A pass is not a measurement.
 
 **Owner:** Digital Currensy Inc.
 **Copyright:** 2026 Digital Currensy Inc.

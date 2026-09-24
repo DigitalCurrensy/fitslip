@@ -26,7 +26,7 @@ import math
 import sys
 from pathlib import Path
 
-from fitslip.match import Verdict, against, bill, clearance, match, median
+from fitslip.match import Verdict, against, bill, clearance, match, median, sample_sd
 
 
 def cell(text: str | None) -> float | None:
@@ -55,7 +55,7 @@ def load(path: Path) -> tuple[list[str], list[tuple[float | None, float | None, 
     return names, rows
 
 
-def load_readings(path: Path) -> list[tuple[str, float | None, float | None, float | None, int]]:
+def load_readings(path: Path) -> list[tuple[str, float | None, float | None, float | None, list[float | None]]]:
     """Group rows of name,reading,lo,hi. The value is the median of the readings."""
     grouped: dict[str, tuple[list[float | None], list[tuple[float | None, float | None]]]] = {}
     order: list[str] = []
@@ -70,14 +70,14 @@ def load_readings(path: Path) -> list[tuple[str, float | None, float | None, flo
                 order.append(name)
             grouped[name][0].append(cell(record.get("reading")))
             grouped[name][1].append((cell(record.get("lo")), cell(record.get("hi"))))
-    rows: list[tuple[str, float | None, float | None, float | None, int]] = []
+    rows: list[tuple[str, float | None, float | None, float | None, list[float | None]]] = []
     for name in order:
         readings, limits = grouped[name]
         value = median(readings)
         low, high = limits[0]
         if any(item != (low, high) for item in limits):
             low, high = None, None
-        rows.append((name, value, low, high, len(readings)))
+        rows.append((name, value, low, high, readings))
     return rows
 
 
@@ -116,7 +116,12 @@ def _show(value: float | None) -> str:
     return f"{value:.10g}"
 
 
-def _row_line(name: str, row: tuple[float | None, float | None, float | None], n: int | None = None) -> str:
+def _row_line(
+    name: str,
+    row: tuple[float | None, float | None, float | None],
+    n: int | None = None,
+    readings: list[float | None] | None = None,
+) -> str:
     word = match(*row).value
     line = (
         f"{name} {word} value={_show(row[0])} low={_show(row[1])} high={_show(row[2])} "
@@ -124,7 +129,7 @@ def _row_line(name: str, row: tuple[float | None, float | None, float | None], n
     )
     if n is None:
         return line
-    return f"{line} n={n} median={_show(row[0])}"
+    return f"{line} n={n} median={_show(row[0])} sd={_show(sample_sd(readings or []))}"
 
 
 def _exit_for(overall: Verdict) -> int:
@@ -146,8 +151,8 @@ def main(argv: list[str] | None = None) -> int:
             packed = load_readings(path)
             overall = bill([(value, low, high) for _, value, low, high, _ in packed])
             print(f"bill {overall.value}")
-            for name, value, low, high, count in packed:
-                print(_row_line(name, (value, low, high), count))
+            for name, value, low, high, readings in packed:
+                print(_row_line(name, (value, low, high), len(readings), readings))
             return _exit_for(overall)
         names, rows = load(path)
         overall = bill(rows)
