@@ -1,5 +1,29 @@
 # FITSLIP
 
+[![check](https://github.com/DigitalCurrensy/fitslip/actions/workflows/check.yml/badge.svg)](https://github.com/DigitalCurrensy/fitslip/actions/workflows/check.yml)
+
+For someone checking a number against a limit, or the spread of several readings of one part.
+
+One reading is compared with the low and the high. A reading file uses the median. Odd count takes the middle. Even count averages the two middle values. `sd` is the sample standard deviation, divisor n − 1. Clearance is the smaller slack. A blank is unknown, not a pass.
+
+It does not touch the part. A pass is not a measurement.
+
+## Install
+
+```bash
+pip install -e .
+PYTHONPATH=src python -m unittest tests.test_kernel
+```
+
+## First command
+
+```bash
+PYTHONPATH=src python -m fitslip examples/readings.csv
+```
+
+The rest of this file is the rule that command prints.
+
+
 Match a parts list to numeric limits. Fail outranks unknown. One `value` is a number you already have. A `reading` file is different: the value is the median of the readings for that name. An odd count takes the middle reading after sorting. An even count averages the two middle readings. A blank or a non-finite reading makes that part unknown. `clearance` is then the smaller of value minus low and high minus value. A negative clearance is outside the limits. `sd` is the sample standard deviation of those readings. The divisor is n − 1. Washer readings 4, 5, and 9 have `sd=2.645751311`. Two readings have a standard deviation. One does not. This sorts and subtracts. It does not touch the part. A pass is not a measurement.
 
 **Owner:** Digital Currensy Inc.
