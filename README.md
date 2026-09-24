@@ -23,6 +23,41 @@ PYTHONPATH=src python -m fitslip examples/readings.csv
 
 The rest of this file is the rule that command prints.
 
+## Record
+
+`--json` prints one object. The process exit code is that object's `exit`. 0 is a pass word (`ok`, `pass`, `scored`, `path`). 1 is a refusal. 2 means the file could not be read. `keep` is false. `absent` is what this output does not contain: a stamp, measured basin months, and the points inside a `.laz` file.
+
+This object is not WaterML and it is not a USGS response.
+
+```json
+{
+  "absent": [
+    "stamp",
+    "measured_months",
+    "laz_points"
+  ],
+  "desk": "fitslip",
+  "exit": 0,
+  "formula": "Clearance is the smaller slack. It does not touch the part.",
+  "keep": false,
+  "rows": [
+    {
+      "line": "bill pass",
+      "word": "pass"
+    },
+    {
+      "line": "washer pass value=5 low=0 high=10 clearance=5 n=3 median=5 sd=2.645751311",
+      "word": "pass"
+    },
+    {
+      "line": "spacer pass value=2 low=0 high=4 clearance=2 n=2 median=2 sd=1.414213562",
+      "word": "pass"
+    }
+  ],
+  "word": "pass"
+}
+```
+
 
 Match a parts list to numeric limits. Fail outranks unknown. One `value` is a number you already have. A `reading` file is different: the value is the median of the readings for that name. An odd count takes the middle reading after sorting. An even count averages the two middle readings. A blank or a non-finite reading makes that part unknown. `clearance` is then the smaller of value minus low and high minus value. A negative clearance is outside the limits. `sd` is the sample standard deviation of those readings. The divisor is n − 1. Washer readings 4, 5, and 9 have `sd=2.645751311`. Two readings have a standard deviation. One does not. This sorts and subtracts. It does not touch the part. A pass is not a measurement.
 

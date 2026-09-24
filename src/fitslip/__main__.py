@@ -132,6 +132,9 @@ def _row_line(
     return f"{line} n={n} median={_show(row[0])} sd={_show(sample_sd(readings or []))}"
 
 
+from .record import emit, record
+
+
 def _exit_for(overall: Verdict) -> int:
     if overall == Verdict.PASS:
         return 0
@@ -140,8 +143,27 @@ def _exit_for(overall: Verdict) -> int:
     return 2
 
 
+def _publish(overall: Verdict, lines: list[str], as_json: bool) -> int:
+    code = _exit_for(overall)
+    if not as_json:
+        for line in lines:
+            print(line)
+        return code
+    payload = record(
+        "fitslip",
+        overall.value,
+        "Clearance is the smaller slack. It does not touch the part.",
+        [{"line": line, "word": line.split()[1]} for line in lines],
+    )
+    payload["exit"] = code
+    payload["word"] = overall.value
+    return emit(payload)
+
+
 def main(argv: list[str] | None = None) -> int:
     args = list(sys.argv[1:] if argv is None else argv)
+    as_json = "--json" in args
+    args = [item for item in args if item != "--json"]
     if len(args) == 1:
         path = Path(args[0])
         with path.open(newline="", encoding="utf-8") as handle:
@@ -150,29 +172,29 @@ def main(argv: list[str] | None = None) -> int:
         if "reading" in header:
             packed = load_readings(path)
             overall = bill([(value, low, high) for _, value, low, high, _ in packed])
-            print(f"bill {overall.value}")
+            lines = [f"bill {overall.value}"]
             for name, value, low, high, readings in packed:
-                print(_row_line(name, (value, low, high), len(readings), readings))
-            return _exit_for(overall)
+                lines.append(_row_line(name, (value, low, high), len(readings), readings))
+            return _publish(overall, lines, as_json)
         names, rows = load(path)
         overall = bill(rows)
-        print(f"bill {overall.value}")
+        lines = [f"bill {overall.value}"]
         for name, row in zip(names, rows):
-            print(_row_line(name, row))
+            lines.append(_row_line(name, row))
     elif len(args) == 2:
         values = load_values(Path(args[0]))
         limits = load_limits(Path(args[1]))
         overall = against(values, limits)
-        print(f"bill {overall.value}")
+        lines = [f"bill {overall.value}"]
         names = list(dict.fromkeys([*values, *limits]))
         for name in names:
             value = values.get(name)
             low, high = limits.get(name, (None, None))
-            print(_row_line(name, (value, low, high)))
+            lines.append(_row_line(name, (value, low, high)))
     else:
-        print("usage: python -m fitslip CSV [ENVELOPE]", file=sys.stderr)
+        print("usage: python -m fitslip CSV [ENVELOPE] [--json]", file=sys.stderr)
         return 2
-    return _exit_for(overall)
+    return _publish(overall, lines, as_json)
 
 
 if __name__ == "__main__":

@@ -11,3 +11,6 @@ license = {text = "Apache-2.0"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[project.scripts]
+fitslip = "fitslip.__main__:main"
