@@ -152,6 +152,23 @@ class CliTests(unittest.TestCase):
             "clip unknown value=1 low=missing high=missing clearance=missing",
         ])
 
+    def test_median_of_readings(self) -> None:
+        from fitslip.match import median
+
+        self.assertEqual(median([9.0, 4.0, 5.0]), 5.0)
+        self.assertEqual(median([1.0, 3.0]), 2.0)
+        self.assertIsNone(median([1.0, float("nan")]))
+        repo = Path(__file__).resolve().parents[1]
+        out = io.StringIO()
+        with redirect_stdout(out):
+            code = main([str(repo / "examples" / "readings.csv")])
+        self.assertEqual(code, 0)
+        self.assertEqual(out.getvalue().splitlines(), [
+            "bill pass",
+            "washer pass value=5 low=0 high=10 clearance=5 n=3 median=5",
+            "spacer pass value=2 low=0 high=4 clearance=2 n=2 median=2",
+        ])
+
 
 
 class FiniteMatchTests(unittest.TestCase):

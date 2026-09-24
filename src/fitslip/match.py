@@ -44,6 +44,25 @@ def clearance(value: float | None, lo: float | None, hi: float | None) -> float 
     return min(value - lo, hi - value)
 
 
+def median(readings: list[float | None]) -> float | None:
+    """Middle reading. An even count averages the two middle readings.
+
+    A blank or a non-finite reading is not a number. This is not a caliper.
+    """
+    if not readings:
+        return None
+    clean: list[float] = []
+    for value in readings:
+        if value is None or not math.isfinite(value):
+            return None
+        clean.append(value)
+    clean.sort()
+    mid = len(clean) // 2
+    if len(clean) % 2:
+        return clean[mid]
+    return (clean[mid - 1] + clean[mid]) / 2.0
+
+
 def bill(rows: list[tuple[float | None, float | None, float | None]]) -> Verdict:
     """Fold a parts bill. An empty bill fails. Fail outranks unknown."""
     if not rows:

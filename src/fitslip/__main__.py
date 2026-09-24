@@ -26,7 +26,7 @@ import math
 import sys
 from pathlib import Path
 
-from fitslip.match import Verdict, against, bill, clearance, match
+from fitslip.match import Verdict, against, bill, clearance, match, median
 
 
 def cell(text: str | None) -> float | None:
@@ -53,6 +53,32 @@ def load(path: Path) -> tuple[list[str], list[tuple[float | None, float | None, 
             names.append((record.get("name") or "").strip())
             rows.append((cell(record.get("value")), cell(record.get("lo")), cell(record.get("hi"))))
     return names, rows
+
+
+def load_readings(path: Path) -> list[tuple[str, float | None, float | None, float | None, int]]:
+    """Group rows of name,reading,lo,hi. The value is the median of the readings."""
+    grouped: dict[str, tuple[list[float | None], list[tuple[float | None, float | None]]]] = {}
+    order: list[str] = []
+    with path.open(newline="", encoding="utf-8") as handle:
+        reader = csv.DictReader(handle)
+        if reader.fieldnames:
+            reader.fieldnames = [name.strip() for name in reader.fieldnames]
+        for record in reader:
+            name = (record.get("name") or "").strip()
+            if name not in grouped:
+                grouped[name] = ([], [])
+                order.append(name)
+            grouped[name][0].append(cell(record.get("reading")))
+            grouped[name][1].append((cell(record.get("lo")), cell(record.get("hi"))))
+    rows: list[tuple[str, float | None, float | None, float | None, int]] = []
+    for name in order:
+        readings, limits = grouped[name]
+        value = median(readings)
+        low, high = limits[0]
+        if any(item != (low, high) for item in limits):
+            low, high = None, None
+        rows.append((name, value, low, high, len(readings)))
+    return rows
 
 
 def load_values(path: Path) -> dict[str, float | None]:
@@ -90,12 +116,15 @@ def _show(value: float | None) -> str:
     return f"{value:.10g}"
 
 
-def _row_line(name: str, row: tuple[float | None, float | None, float | None]) -> str:
+def _row_line(name: str, row: tuple[float | None, float | None, float | None], n: int | None = None) -> str:
     word = match(*row).value
-    return (
+    line = (
         f"{name} {word} value={_show(row[0])} low={_show(row[1])} high={_show(row[2])} "
         f"clearance={_show(clearance(*row))}"
     )
+    if n is None:
+        return line
+    return f"{line} n={n} median={_show(row[0])}"
 
 
 def _exit_for(overall: Verdict) -> int:
@@ -109,7 +138,18 @@ def _exit_for(overall: Verdict) -> int:
 def main(argv: list[str] | None = None) -> int:
     args = list(sys.argv[1:] if argv is None else argv)
     if len(args) == 1:
-        names, rows = load(Path(args[0]))
+        path = Path(args[0])
+        with path.open(newline="", encoding="utf-8") as handle:
+            header = next(csv.reader(handle), [])
+        header = [name.strip() for name in header]
+        if "reading" in header:
+            packed = load_readings(path)
+            overall = bill([(value, low, high) for _, value, low, high, _ in packed])
+            print(f"bill {overall.value}")
+            for name, value, low, high, count in packed:
+                print(_row_line(name, (value, low, high), count))
+            return _exit_for(overall)
+        names, rows = load(path)
         overall = bill(rows)
         print(f"bill {overall.value}")
         for name, row in zip(names, rows):
