@@ -26,7 +26,7 @@ import math
 import sys
 from pathlib import Path
 
-from fitslip.match import Verdict, against, bill, match
+from fitslip.match import Verdict, against, bill, clearance, match
 
 
 def cell(text: str | None) -> float | None:
@@ -92,7 +92,10 @@ def _show(value: float | None) -> str:
 
 def _row_line(name: str, row: tuple[float | None, float | None, float | None]) -> str:
     word = match(*row).value
-    return f"{name} {word} value={_show(row[0])} low={_show(row[1])} high={_show(row[2])}"
+    return (
+        f"{name} {word} value={_show(row[0])} low={_show(row[1])} high={_show(row[2])} "
+        f"clearance={_show(clearance(*row))}"
+    )
 
 
 def _exit_for(overall: Verdict) -> int:

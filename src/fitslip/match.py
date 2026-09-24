@@ -33,6 +33,17 @@ def match(value: float | None, lo: float | None, hi: float | None) -> Verdict:
     return Verdict.FAIL
 
 
+def clearance(value: float | None, lo: float | None, hi: float | None) -> float | None:
+    """Smaller distance to a limit. Negative means the value is outside.
+
+    The part size is still the caller's. This only subtracts.
+    """
+    if match(value, lo, hi) == Verdict.UNKNOWN:
+        return None
+    assert value is not None and lo is not None and hi is not None
+    return min(value - lo, hi - value)
+
+
 def bill(rows: list[tuple[float | None, float | None, float | None]]) -> Verdict:
     """Fold a parts bill. An empty bill fails. Fail outranks unknown."""
     if not rows:

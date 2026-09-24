@@ -122,9 +122,9 @@ class CliTests(unittest.TestCase):
         text = out.getvalue().splitlines()
         self.assertEqual(text[0], "bill pass")
         self.assertEqual(text[1:], [
-            "washer pass value=5 low=0 high=10",
-            "spacer pass value=1 low=0 high=2",
-            "clip pass value=0 low=-20 high=60",
+            "washer pass value=5 low=0 high=10 clearance=5",
+            "spacer pass value=1 low=0 high=2 clearance=1",
+            "clip pass value=0 low=-20 high=60 clearance=20",
         ])
 
         out = io.StringIO()
@@ -134,9 +134,9 @@ class CliTests(unittest.TestCase):
         text = out.getvalue().splitlines()
         self.assertEqual(text, [
             "bill fail",
-            "bracket unknown value=missing low=0 high=10",
-            "washer pass value=5 low=0 high=10",
-            "bolt fail value=15 low=0 high=10",
+            "bracket unknown value=missing low=0 high=10 clearance=missing",
+            "washer pass value=5 low=0 high=10 clearance=5",
+            "bolt fail value=15 low=0 high=10 clearance=-5",
         ])
 
     def test_two_files_exit_1(self) -> None:
@@ -147,9 +147,9 @@ class CliTests(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertEqual(out.getvalue().splitlines(), [
             "bill fail",
-            "washer pass value=5 low=0 high=10",
-            "bolt fail value=15 low=0 high=10",
-            "clip unknown value=1 low=missing high=missing",
+            "washer pass value=5 low=0 high=10 clearance=5",
+            "bolt fail value=15 low=0 high=10 clearance=-5",
+            "clip unknown value=1 low=missing high=missing clearance=missing",
         ])
 
 

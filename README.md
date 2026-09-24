@@ -1,6 +1,6 @@
 # FITSLIP
 
-Match a parts list to numeric limits. Fail outranks unknown.
+Match a parts list to numeric limits. Fail outranks unknown. `clearance` is the smaller of value minus low and high minus value. A negative clearance is outside the limits. The part size is still yours. A pass is not a measurement.
 
 **Owner:** Digital Currensy Inc.
 **Copyright:** 2026 Digital Currensy Inc.
